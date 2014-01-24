@@ -32,6 +32,41 @@ class WeatherController < UIViewController
     # your subviews in the default `self.view` instance that is created
     # automatically.
     self.view = UITableView.alloc.initWithFrame(UIScreen.mainScreen.bounds)
+
+    # The `UITableView` will ask its `dataSource` for information related to the
+    # data that this table view is displaying.  Google `UITableViewDataSource`
+    # to see all the methods you can implement.  At a minimum, you must
+    # implement `tableView(numberOfRowsInSection:) and
+    # tableView(cellForRowAtIndexPath:)`.
+    self.view.dataSource = self
+    # cell reuse is a memory-management technique that Apple loves to rely on.
+    # The table view will only create and use enough cells to fill the screen.
+    # After that, it will reuse those cells so that memory does not need to be
+    # allocated for more cells.  This means that you will be getting the *same
+    # instance* of the cell over and over, so you have to be careful to
+    # completely reset its state (touch handlers, view content, etc).
+    # In practice, you should use a custom UITableViewCell subclass, and
+    # implement the method `prepareForReuse` to reset the cell values.
+    self.view.registerClass(UITableViewCell, forCellReuseIdentifier: 'cell')
+  end
+
+  def tableView(table_view, numberOfRowsInSection: section)
+    # this is just a made up number - change it to 500 if you want to scroll
+    # through lots of data (and use SugarCube's `tree` command to introspect
+    # those cells!)
+    5
+  end
+
+  def tableView(table_view, cellForRowAtIndexPath: index_path)
+    # this method will always return an instance using the class we specified
+    # above; it may be a new instance, it may be a reused cell.
+    cell = table_view.dequeueReusableCellWithIdentifier('cell')
+    # the stock UITableViewCell has a few labels where we can toss data.  We'll
+    # use the `textLabel` view (an instance of `UILabel`).  The label has a
+    # `text` property that we can assign a string to.
+    cell.textLabel.text = index_path.inspect
+
+    return cell
   end
 
 end
