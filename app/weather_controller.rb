@@ -1,12 +1,7 @@
 # Our WeatherController will display a list of recent weather in Denver
 class WeatherController < UIViewController
-
-  # This is a publically accessible data source for weather data, and it's
-  # updated in real-time (we could easily have the app track and display these
-  # real-time updates).  `WEATHER` stores the URL, and `FIREBASE` is our
-  # connection to the Firebase API.
-  WEATHER = 'https://publicdata-weather.firebaseio.com'
-  FIREBASE = Firebase.new(WEATHER)
+  # in testing, we'll assign a "fake" storage instance to this property
+  attr_accessor :storage
 
   # the `init` method is the Objective-C equivalent of Ruby's `initialize`
   # method.  Because WeatherController is a subclass of an Objective-C class, we
@@ -18,13 +13,7 @@ class WeatherController < UIViewController
     # is returned.  This style is getting popular in the RubyMotion community.
     super.tap do
       self.title = 'Denver Weather'
-      # We want to access the "denver hourly data" endpoint, so we create a
-      # 'child' reference.
-      @firebase_ref = FIREBASE.child('denver/hourly/data')
-      # we'll store incoming data in this array
-      @weather_data = []
-      # while data is loading, we should display a 'SpinnerCell'
-      @loaded = false
+      self.storage = WeatherStorage.new
     end
   end
 
@@ -83,17 +72,9 @@ class WeatherController < UIViewController
     super  # this method is a UIViewController method, so be a good citizen and
            # notify the parent class.
 
-    # the :child_added event occurs once for every child node of
-    # denver/hourly/data.  'added' is somewhat misleading here; it's 'added' in
-    # the sense that we have not *locally* seen this data.  Weather the node was
-    # 'added' to Firebase recently or not is unknown, only that it's new to *our
-    # app*
-    @firebase_ref.on(:child_added) do |snapshot|
-      @loaded = true
-      @weather_data << snapshot.value
-      # data comes in unsorted, we need to fix that; we'll use the timestamp
-      # to provide an easy sorting mechanism
-      @weather_data.sort! { |a, b| a['time'] <=> b['time'] }
+    # tell our storage class we're ready for it to start generating data, and
+    # what to do when new data is available
+    self.storage.open do
       # we need to notify our table view that the data has changed
       self.view.reloadData
     end
@@ -103,14 +84,14 @@ class WeatherController < UIViewController
   # to be removed from the view hierarchy.
   def viewWillDisappear(animated)
     super
-    # turn off our network resource
-    @ref.off
+    # tell storage class to stop listening for new data
+    self.storage.close
   end
 
   def tableView(table_view, numberOfRowsInSection: section)
-    if @loaded
-      # each entry in @weather_data gets a row in our table view
-      @weather_data.length
+    if self.storage.loaded?
+      # each entry in storage gets a row in our table view
+      self.storage.length
     else
       # data isn't ready yet, so display the spinner cell
       1
@@ -118,7 +99,7 @@ class WeatherController < UIViewController
   end
 
   def tableView(table_view, cellForRowAtIndexPath: index_path)
-    if @loaded
+    if self.storage.loaded?
       # this method will always return an instance using the class we specified
       # above; it may be a new instance, it may be a reused cell.
       cell = table_view.dequeueReusableCellWithIdentifier('cell')
@@ -129,7 +110,7 @@ class WeatherController < UIViewController
       # we'll construct a 'text' value based on the "timestamp" and "summary"
       # fields of our incoming data.  We use the `NSIndexPath` object to retrieve
       # the index of the row.
-      data = @weather_data[index_path.row]
+      data = self.storage[index_path.row]
       text = ''  # start with a mutable string
       # add a short date and time
       text << Time.at(data['time']).string_with_style(:short, :short)
