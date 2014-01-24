@@ -1,9 +1,9 @@
-We've got our table loaded, now we're ready to take the next leap in our foray
-into iOS development.  We'll assign our `WeatherController` as the `dataSource`
-of the `UITableView`, which means our controller will be responsible for
-implementing the methods in the [`UITableViewDataSource` protocol][UITableViewDataSource].
+Now let's take things up a notch by displaying some real data!  We'll be using
+a real-time weather database that is provided by [Firebase][].  We're using the
+[motion-firebase][] gem to access its API.
 
-In our contrived example, we'll output the `NSIndexPath` object using the Ruby
-method `inspect`, assigning that to the `textLabel` of the `UITableViewCell`.
+Lots more implementation code in this commit; at the end of the day all we are
+doing is fetch the data, sort it, and update the table view.
 
-[UITableViewDataSource]: https://developer.apple.com/library/ios/documentation/uikit/reference/UITableViewDataSource_Protocol/Reference/Reference.html
+[Firebase]: http://firebase.com
+[motion-firebase]: https://github.com/colinta/motion-firebase

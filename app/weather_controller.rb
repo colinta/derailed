@@ -1,6 +1,13 @@
 # Our WeatherController will display a list of recent weather in Denver
 class WeatherController < UIViewController
 
+  # This is a publically accessible data source for weather data, and it's
+  # updated in real-time (we could easily have the app track and display these
+  # real-time updates).  `WEATHER` stores the URL, and `FIREBASE` is our
+  # connection to the Firebase API.
+  WEATHER = 'https://publicdata-weather.firebaseio.com'
+  FIREBASE = Firebase.new(WEATHER)
+
   # the `init` method is the Objective-C equivalent of Ruby's `initialize`
   # method.  Because WeatherController is a subclass of an Objective-C class, we
   # will use it's "designated initializer" (google it).  If we were writing a
@@ -11,6 +18,11 @@ class WeatherController < UIViewController
     # is returned.  This style is getting popular in the RubyMotion community.
     super.tap do
       self.title = 'Denver Weather'
+      # We want to access the "denver hourly data" endpoint, so we create a
+      # 'child' reference.
+      @firebase_ref = FIREBASE.child('denver/hourly/data')
+      # we'll store incoming data in this array
+      @weather_data = []
     end
   end
 
@@ -50,11 +62,42 @@ class WeatherController < UIViewController
     self.view.registerClass(UITableViewCell, forCellReuseIdentifier: 'cell')
   end
 
+  # when the `UINavigationController` is about to display our view, this method
+  # will be called to notify us that our view is going to be added to the view
+  # hierarchy.  We'll take this opportunity to start loading our weather data
+  def viewWillAppear(animated)
+    super  # this method is a UIViewController method, so be a good citizen and
+           # notify the parent class.
+
+    # the :child_added event occurs once for every child node of
+    # denver/hourly/data.  'added' is somewhat misleading here; it's 'added' in
+    # the sense that we have not *locally* seen this data.  Weather the node was
+    # 'added' to Firebase recently or not is unknown, only that it's new to *our
+    # app*
+    @firebase_ref.on(:child_added) do |snapshot|
+      # `ap` is short for `awesome-print`, a very handy gem that provides
+      # colored output for Ruby objects.
+      ap snapshot.value
+      @weather_data << snapshot.value
+      # data comes in unsorted, we need to fix that; we'll use the timestamp
+      # to provide an easy sorting mechanism
+      @weather_data.sort! { |a, b| a['time'] <=> b['time'] }
+      # we need to notify our table view that the data has changed
+      self.view.reloadData
+    end
+  end
+
+  # the complement to viewWillAppear, this method is called when a view is going
+  # to be removed from the view hierarchy.
+  def viewWillDisappear(animated)
+    super
+    # turn off our network resource
+    @ref.off
+  end
+
   def tableView(table_view, numberOfRowsInSection: section)
-    # this is just a made up number - change it to 500 if you want to scroll
-    # through lots of data (and use SugarCube's `tree` command to introspect
-    # those cells!)
-    5
+    # each entry in @weather_data gets a row in our table view
+    @weather_data.length
   end
 
   def tableView(table_view, cellForRowAtIndexPath: index_path)
@@ -64,7 +107,18 @@ class WeatherController < UIViewController
     # the stock UITableViewCell has a few labels where we can toss data.  We'll
     # use the `textLabel` view (an instance of `UILabel`).  The label has a
     # `text` property that we can assign a string to.
-    cell.textLabel.text = index_path.inspect
+
+    # we'll construct a 'text' value based on the "timestamp" and "summary"
+    # fields of our incoming data.  We use the `NSIndexPath` object to retrieve
+    # the index of the row.
+    data = @weather_data[index_path.row]
+    text = ''  # start with a mutable string
+    # add a short date and time
+    text << Time.at(data['time']).string_with_style(:short, :short)
+    # and add the summary, with ": " between the date and summary
+    text << ': ' << data['summary']
+
+    cell.textLabel.text = text
 
     return cell
   end

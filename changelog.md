@@ -3,6 +3,19 @@ See [follow_along][] for the current commit summary.  This file contains all the
 
 [follow_along]: github.com/colinta/derailed/blob/master/follow_along.md
 
+0ce69d0
+-------
+We've got our table loaded, now we're ready to take the next leap in our foray
+into iOS development.  We'll assign our `WeatherController` as the `dataSource`
+of the `UITableView`, which means our controller will be responsible for
+implementing the methods in the [`UITableViewDataSource` protocol][UITableViewDataSource].
+
+In our contrived example, we'll output the `NSIndexPath` object using the Ruby
+method `inspect`, assigning that to the `textLabel` of the `UITableViewCell`.
+
+[UITableViewDataSource]: https://developer.apple.com/library/ios/documentation/uikit/reference/UITableViewDataSource_Protocol/Reference/Reference.html
+
+
 40a9a2c
 -------
 Our WeatherController is currently using a stock `UIView` as its root view.  To
@@ -57,9 +70,9 @@ aliased to `a` for quick usage.  For instance:
 This REPL introspection ability is CRUCIAL to your success as a RubyMotion
 developer!  Learn it, use it, love it. :-)
 
+
 d3311fb
 -------
-
 In our initial commit we only had the default, bare-bones application that is
 generated when you use the `motion create derailed` command to start a new
 application.
