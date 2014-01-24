@@ -21,4 +21,13 @@ class WeatherDetailController < UIViewController
     self.temp_label.text = "#{@weather.degrees_farenheit.round(1)}°"
   end
 
+  def viewWillAppear(animated)
+    super
+
+    delay = 0.1
+    self.date_label.slide_from(:left, delay: 1 * delay)
+    self.summary_label.slide_from(:right, delay: 2 * delay)
+    self.temp_label.slide_from(:left, delay: 3 * delay)
+  end
+
 end
