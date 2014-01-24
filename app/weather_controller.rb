@@ -23,6 +23,8 @@ class WeatherController < UIViewController
       @firebase_ref = FIREBASE.child('denver/hourly/data')
       # we'll store incoming data in this array
       @weather_data = []
+      # while data is loading, we should display a 'SpinnerCell'
+      @loaded = false
     end
   end
 
@@ -67,6 +69,11 @@ class WeatherController < UIViewController
     # In practice, you should use a custom UITableViewCell subclass, and
     # implement the method `prepareForReuse` to reset the cell values.
     self.view.registerClass(UITableViewCell, forCellReuseIdentifier: 'cell')
+
+    # We're going to use a custom UITableViewCell subclass to display our
+    # spinner.  I keep this cell in my handy 'toolbox' of iOS classes, I end up
+    # using it on just about every project.
+    self.view.registerClass(SpinnerCell, forCellReuseIdentifier: SpinnerCell::ID)
   end
 
   # when the `UINavigationController` is about to display our view, this method
@@ -82,6 +89,7 @@ class WeatherController < UIViewController
     # 'added' to Firebase recently or not is unknown, only that it's new to *our
     # app*
     @firebase_ref.on(:child_added) do |snapshot|
+      @loaded = true
       @weather_data << snapshot.value
       # data comes in unsorted, we need to fix that; we'll use the timestamp
       # to provide an easy sorting mechanism
@@ -100,29 +108,38 @@ class WeatherController < UIViewController
   end
 
   def tableView(table_view, numberOfRowsInSection: section)
-    # each entry in @weather_data gets a row in our table view
-    @weather_data.length
+    if @loaded
+      # each entry in @weather_data gets a row in our table view
+      @weather_data.length
+    else
+      # data isn't ready yet, so display the spinner cell
+      1
+    end
   end
 
   def tableView(table_view, cellForRowAtIndexPath: index_path)
-    # this method will always return an instance using the class we specified
-    # above; it may be a new instance, it may be a reused cell.
-    cell = table_view.dequeueReusableCellWithIdentifier('cell')
-    # the stock UITableViewCell has a few labels where we can toss data.  We'll
-    # use the `textLabel` view (an instance of `UILabel`).  The label has a
-    # `text` property that we can assign a string to.
+    if @loaded
+      # this method will always return an instance using the class we specified
+      # above; it may be a new instance, it may be a reused cell.
+      cell = table_view.dequeueReusableCellWithIdentifier('cell')
+      # the stock UITableViewCell has a few labels where we can toss data.  We'll
+      # use the `textLabel` view (an instance of `UILabel`).  The label has a
+      # `text` property that we can assign a string to.
 
-    # we'll construct a 'text' value based on the "timestamp" and "summary"
-    # fields of our incoming data.  We use the `NSIndexPath` object to retrieve
-    # the index of the row.
-    data = @weather_data[index_path.row]
-    text = ''  # start with a mutable string
-    # add a short date and time
-    text << Time.at(data['time']).string_with_style(:short, :short)
-    # and add the summary, with ": " between the date and summary
-    text << ': ' << data['summary']
+      # we'll construct a 'text' value based on the "timestamp" and "summary"
+      # fields of our incoming data.  We use the `NSIndexPath` object to retrieve
+      # the index of the row.
+      data = @weather_data[index_path.row]
+      text = ''  # start with a mutable string
+      # add a short date and time
+      text << Time.at(data['time']).string_with_style(:short, :short)
+      # and add the summary, with ": " between the date and summary
+      text << ': ' << data['summary']
 
-    cell.textLabel.text = text
+      cell.textLabel.text = text
+    else
+      cell = table_view.dequeueReusableCellWithIdentifier(SpinnerCell::ID)
+    end
 
     return cell
   end
