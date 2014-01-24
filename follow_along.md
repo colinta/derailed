@@ -1,9 +1,18 @@
-Now let's take things up a notch by displaying some real data!  We'll be using
-a real-time weather database that is provided by [Firebase][].  We're using the
-[motion-firebase][] gem to access its API.
+A quick commit, this introduces the [`UITableViewDelegate`][UITableViewDelegate].
+We implement just one method from this protocol, the
+`tableView(didSelectRowAtIndexPath:)` method.  In this method we can deselect
+our cell (this doesn't happen automatically).
 
-Lots more implementation code in this commit; at the end of the day all we are
-doing is fetch the data, sort it, and update the table view.
+Data sources and delegates are essential to iOS and OS X development, so please
+read up on why/how these work.
 
-[Firebase]: http://firebase.com
-[motion-firebase]: https://github.com/colinta/motion-firebase
+### Too Much Information
+
+There are also memory considerations to consider here: the table view is
+retained by the controller, so if the data source (our controller) was retained
+by the table view, we would have a circular reference!  For this reason, data
+sources and delegates are 'weak' references.  This doesn't matter in our little
+app, but if we were using some *other* class as our data source, we would need
+to make sure to hold onto that instance in our controller via an ivar.
+
+[UITableViewDelegate]: https://developer.apple.com/library/ios/documentation/uikit/reference/UITableViewDelegate_Protocol/Reference/Reference.html

@@ -3,6 +3,20 @@ See [follow_along][] for the current commit summary.  This file contains all the
 
 [follow_along]: github.com/colinta/derailed/blob/master/follow_along.md
 
+8219057
+-------
+
+Now let's take things up a notch by displaying some real data!  We'll be using
+a real-time weather database that is provided by [Firebase][].  We're using the
+[motion-firebase][] gem to access its API.
+
+Lots more implementation code in this commit; at the end of the day all we are
+doing is fetch the data, sort it, and update the table view.
+
+[Firebase]: http://firebase.com
+[motion-firebase]: https://github.com/colinta/motion-firebase
+
+
 0ce69d0
 -------
 We've got our table loaded, now we're ready to take the next leap in our foray
