@@ -1,0 +1,16 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    awesome_print_motion (0.1.0)
+    motion-firebase (2.0.0)
+    rake (10.1.0)
+    sugarcube (1.3.11)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  awesome_print_motion
+  motion-firebase
+  rake
+  sugarcube
