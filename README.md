@@ -20,7 +20,7 @@ follow_along.md entries.
 
 Hope it helps!
 
-#colinta / Colin T.A. Gray
+ #colinta / Colin T.A. Gray
 
 [follow_along.md]: https://github.com/colinta/derailed/blob/master/follow_along.md
 [changelog.md]: https://github.com/colinta/derailed/blob/master/changelog.md
