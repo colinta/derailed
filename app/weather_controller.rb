@@ -51,4 +51,9 @@ class WeatherController < UIViewController
     self.storage.close
   end
 
+  def display_weather(weather)
+    detail_controller = WeatherDetailController.alloc.initWithWeather(weather)
+    self.navigationController << detail_controller
+  end
+
 end

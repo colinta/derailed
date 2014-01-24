@@ -34,12 +34,12 @@ module WeatherControllerTable
       # we'll construct a 'text' value based on the "timestamp" and "summary"
       # fields of our incoming data.  We use the `NSIndexPath` object to retrieve
       # the index of the row.
-      data = self.storage[index_path.row]
+      weather_model = self.storage[index_path.row]
       text = ''  # start with a mutable string
       # add a short date and time
-      text << Time.at(data['time']).string_with_style(:short, :short)
+      text << weather_model.time.string_with_style(:short, :short)
       # and add the summary, with ": " between the date and summary
-      text << ': ' << data['summary']
+      text << ': ' << weather_model.summary
 
       cell.textLabel.text = text
     else
@@ -53,6 +53,11 @@ module WeatherControllerTable
   # detail-view, we would push it onto our navigation controller here.
   def tableView(table_view, didSelectRowAtIndexPath: index_path)
     table_view.deselectRowAtIndexPath(index_path, animated: true)
+
+    if self.storage.loaded?
+      weather_model = self.storage[index_path.row]
+      self.display_weather(weather_model)
+    end
   end
 
 end

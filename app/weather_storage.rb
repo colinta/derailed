@@ -27,10 +27,15 @@ class WeatherStorage
     # app*
     @firebase_ref.on(:child_added) do |snapshot|
       @loaded = true
-      @weather_data << snapshot.value
+      model = WeatherModel.new(
+        'time' => Time.at(snapshot.value['time']),
+        'summary' => snapshot.value['summary'],
+        'degrees_farenheit' => snapshot.value['apparentTemperature'],
+        )
+      @weather_data << model
       # data comes in unsorted, we need to fix that; we'll use the timestamp
       # to provide an easy sorting mechanism
-      @weather_data.sort! { |a, b| a['time'] <=> b['time'] }
+      @weather_data.sort! { |a, b| a.time <=> b.time }
 
       handler.call if handler
     end

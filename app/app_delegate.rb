@@ -23,6 +23,7 @@ class AppDelegate
     # to go back and forth between the 'browse' and 'detail' screens.  For now,
     # our navigation controller just contains our browse screen
     nav_controller = UINavigationController.alloc.initWithRootViewController(weather_controller)
+    nav_controller.navigationBar.tintColor = :black.uicolor
 
     # display our nav controller in the window
     @window.rootViewController = nav_controller
