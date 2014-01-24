@@ -3,6 +3,16 @@ See [follow_along][] for the current commit summary.  This file contains all the
 
 [follow_along]: github.com/colinta/derailed/blob/master/follow_along.md
 
+8986fc9
+-------
+
+First we'll move our network code into its own class, `WeatherStorage`.  This
+class will be responsible for opening and closing connections to Firebase, and
+for storing the data that Firebase sends us.
+
+It will accept a block that is called when the data changes.
+
+
 5d9ccfd
 -------
 
