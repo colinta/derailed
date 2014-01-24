@@ -3,6 +3,15 @@ See [follow_along][] for the current commit summary.  This file contains all the
 
 [follow_along]: github.com/colinta/derailed/blob/master/follow_along.md
 
+06d0c86
+-------
+
+Last thing, just for fun, I'm gonna add animations, because SugarCube makes this
+really fun and easy.
+
+Check out the `viewWillAppear` method of WeatherDetailController.  Fun stuff.
+
+
 0181f99
 -------
 
